@@ -13,8 +13,8 @@ const styles = StyleSheet.create({
 
 export default CameraScreen = props => {
   const { navigation } = props;
-  const afterTaking = imageUrl => {
-    navigation.navigate('Comfirm', { imageUrl: imageUrl });
+  const afterTaking = pictureData => {
+    navigation.navigate('Comfirm', { pictureData: pictureData });
   };
   return (
     <View style={styles.container}>

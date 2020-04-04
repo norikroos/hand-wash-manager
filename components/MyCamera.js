@@ -39,8 +39,12 @@ const MyCamera = props => {
   }, []);
 
   const takePicture = async () => {
-    const pictureData = await camera.takePictureAsync();
-    afterTaking(pictureData.uri);
+    const pictureData = await camera.takePictureAsync({
+      quality: 0.01,
+      base64: true,
+    });
+
+    afterTaking(pictureData);
   };
 
   if (hasPermission === null) {
