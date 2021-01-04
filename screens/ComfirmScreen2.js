@@ -11,6 +11,11 @@ import Modal from 'react-native-modal';
 import { connect } from 'react-redux';
 import { createPhoto } from '../store/actions/photo';
 import axios from 'axios';
+import Environment from '../config/environments';
+
+const URL =
+  'https://vision.googleapis.com/v1/images:annotate?key=' +
+  Environment['GOOGLE_CLOUD_VISION_API_KEY'];
 
 const VALID_LABEL_SCORE = 0.8; // CloudVisionAPIにより判定されたスコアの採用基準
 
@@ -33,8 +38,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ComfirmScreen = props => {
-  const { route, createPhoto } = props;
+const ComfirmScreen = ({ route }) => {
   const { pictureData } = route.params;
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(true);
@@ -46,21 +50,21 @@ const ComfirmScreen = props => {
   }, []);
 
   const initConfirm = async () => {
-    const res = createPhoto(pictureData);
-    // setLabelData(res);
-    // const handLabel = res.labelAnnotations
-    //   .filter(r => r.description == 'Hand')
-    //   .shift();
+    const res = await fetchLabelData(pictureData);
+    setLabelData(res);
+    const handLabel = res.labelAnnotations
+      .filter(r => r.description == 'Hand')
+      .shift();
 
-    // const washingLabel = res.labelAnnotations
-    //   .filter(r => r.description == 'Washing')
-    //   .shift();
+    const washingLabel = res.labelAnnotations
+      .filter(r => r.description == 'Washing')
+      .shift();
 
-    // if (!validLabel(handLabel)) {
-    //   setResultText('それ、手？');
-    // } else if (!validLabel(washingLabel)) {
-    //   setResultText('ちゃんと手洗って？');
-    // }
+    if (!validLabel(handLabel)) {
+      setResultText('それ、手？');
+    } else if (!validLabel(washingLabel)) {
+      setResultText('ちゃんと手洗って？');
+    }
 
     setIsLoading(false);
   };
@@ -128,15 +132,10 @@ const ComfirmScreen = props => {
   );
 };
 
-//空でも良いので、mapStateToPropsを記述
-const mapStateToProps = state => {
-  return {};
-};
-
-const mapDispatchToProps = (dispatch, state) => {
+const mapDispatchToProps = dispatch => {
   return {
     createPhoto: photo => dispatch(createPhoto(photo)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ComfirmScreen);
+export default connect(mapDispatchToProps)(ComfirmScreen);
